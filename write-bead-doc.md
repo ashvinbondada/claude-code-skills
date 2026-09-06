@@ -60,6 +60,11 @@ Format each risk:
 
 If there are no risks meeting this bar, write: "No risks above threshold for this bead."
 
+### 7. File footprint
+Every file this bead creates or modifies — the delivered files and the incidental ones (barrel/index files, registries, `package.json`/lockfiles, config, generated files). Start from the footprint declared in the beads doc, then confirm or correct it against the exact code in section 4. If they differ, list which files were added or dropped and why.
+
+When running as a subagent, return this footprint to the orchestrator alongside the doc — `parallel-implementation-plan` consumes these reports.
+
 ## What NOT to include
 - Rationale already in the architecture doc — add a `See: [arch doc path]` reference instead
 - Low-severity observations
@@ -73,5 +78,6 @@ Before writing the file, verify all three are true:
 1. An engineer can write every line of code without asking a follow-up question
 2. The exact tests to run to verify completion are present and runnable
 3. The next bead's author can write their input contract from section 3 alone
+4. The file footprint in section 7 matches exactly the files section 4 touches — nothing more, nothing less
 
 If any are false, fill the gap before saving.

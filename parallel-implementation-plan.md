@@ -13,18 +13,20 @@ The plan is not trusted because the model believes it is correct. It is trusted 
 
 ## What You Need Before Starting
 
-- The beads doc (full DAG, all "Depends on" fields)
-- All per-bead implementation docs (they specify exact code, so file paths are derivable)
+- The beads doc (full DAG, all "Depends on" fields, declared footprints)
+- All per-bead implementation docs, each carrying the File footprint section reported by `write-bead-doc`
 - Stage 4 of the loop (final hostile review) must be clean. Footprints extracted from unreviewed bead docs are not trustworthy.
 
-## Step 1 — Extract File Footprints
+## Step 1 — Collect File Footprints
 
-For each bead, from its per-bead doc, list **every file it will create or modify**. Two categories, both mandatory:
+Footprints are **collected, not re-derived**: each `write-bead-doc` subagent reports its bead's final footprint, and every per-bead doc carries a **File footprint** section. Use those. Only when a report and section are both missing do you derive the footprint from the doc's code sections — and that gap is itself a HOLE to fix in the bead doc.
+
+Each footprint covers two categories, both mandatory:
 
 - **Delivered files** — the modules, tests, and schemas the bead exists to produce.
-- **Incidental files** — files the bead touches on the way. This is where hidden conflicts live. Check explicitly for: barrel/index files, route or plugin registries, `package.json` / lockfiles, migration indexes, config files, generated files, shared type files.
+- **Incidental files** — files the bead touches on the way. This is where hidden conflicts live: barrel/index files, route or plugin registries, `package.json` / lockfiles, migration indexes, config files, generated files, shared type files.
 
-If you cannot determine a bead's full footprint from its doc, that is a HOLE in the bead doc — stop and fix the doc, do not guess.
+Cross-check each reported footprint against the footprint declared in the beads doc. Unexplained drift between the two is a finding to resolve in the docs, not something to silently adopt.
 
 Any file shared between two beads makes them **same-wave incompatible**, no exceptions. There is no "they touch different parts of the file."
 

@@ -1,6 +1,6 @@
 ---
 name: beads-document
-description: Use when asked to create a beads document — a migration plan where each bead is an atomic unit of work with dependency ordering, contract tests, and Playwright E2E validation steps.
+description: Use when asked to create a beads document — a migration plan where each bead is an atomic unit of work with dependency ordering, input/output contracts, a file footprint, and Playwright E2E validation steps.
 ---
 
 # Beads Document
@@ -16,11 +16,14 @@ A Beads Document expresses an architectural migration as a sequenced chain of at
 | **Title** | Short imperative phrase — "Initialise Next.js project" |
 | **Accomplishes** | 2–3 sentences: what is delivered and why it matters for the migration |
 | **Depends on** | Bead numbers/titles that must be complete before this bead starts |
-| **Implementation** | All code required to complete this bead — full file contents or exact diffs, not pseudocode or descriptions |
-| **Tests** | Full runnable test code (not descriptions) — every test that must pass before this bead is done |
+| **Input contract** | Exact types/shapes this bead consumes, and which prior bead (or existing code) delivers each — precise enough to diff against the predecessor's output contract |
+| **Output contract** | Exact types/shapes this bead delivers — precise enough that every dependent can write its input contract from this alone |
+| **File footprint** | Every file this bead will create or modify — delivered files AND incidental ones (barrel/index files, registries, lockfiles, config, generated files) |
+| **Implementation outline** | Ordered planning-level steps: what changes, where. NOT full code — exact code is written once, later, by `write-bead-doc` |
+| **Test intent** | Each behavior that must be proven: setup state, the exact call/condition, the assertion. Runnable test code is written later by `write-bead-doc` |
 | **E2E validation** | Playwright MCP steps if browser-testable; otherwise "N/A — not browser-testable at this step" |
 
-**Implementation and Tests are mandatory.** A bead with no code is not a bead — it is a wish. An engineer must be able to implement and verify the bead entirely from what is written here, with no guesswork.
+**Contracts and footprint are mandatory.** A bead whose contracts can't be diffed against its neighbours' is not a bead — it is a wish. This document is the planning source of truth: `write-bead-doc` must be able to produce the full implementation doc from a bead's entry plus the arch doc, with no guesswork. Exact code and runnable tests live only in the per-bead docs — never duplicate them here.
 
 ## Identifying Bead Boundaries
 
@@ -32,26 +35,17 @@ Split at every point where:
 
 Do NOT split by file type or by team. Split by **deliverable**.
 
-## Writing Tests
+## Writing Test Intent
 
-Tests are **full runnable code**, not descriptions. Copy-paste into the test file and run — they must work.
+Test intent is **precise, not runnable**. Each entry pins down setup state, the exact call under test, and the exact assertion — specific enough that `write-bead-doc` can turn it into runnable code without making a single decision.
 
-Good test (full code):
-```python
-@pytest.mark.django_db
-def test_maintenance_tickets_scoped_to_shift(api_client):
-    old = timezone.now() - timedelta(hours=24)
-    MaintenanceTicket.objects.create(room_number="501", description="Old", priority="low", status="open", created_at=old)
-    MaintenanceTicket.objects.create(room_number="502", description="Current", priority="medium", status="open", created_at=timezone.now())
-    room_numbers = [t["room_number"] for t in api_client.get("/api/shift/maintenance-tickets/").json()]
-    assert "502" in room_numbers
-    assert "501" not in room_numbers
-```
+Good intent (fully pinned down):
+- Given one `MaintenanceTicket` created 24h ago (room 501) and one created now (room 502), `GET /api/shift/maintenance-tickets/` returns room 502 and does NOT return room 501
 
-Bad test (description only):
-- "`GET /api/shift/maintenance-tickets/` only returns tickets from the current shift" — **this is a wish, not a test**
+Bad intent (a wish):
+- "the endpoint only returns tickets from the current shift" — names no setup, no exact call, no assertion
 
-Every test must include: imports, setup, the call under test, and the assertion. No placeholders.
+The runnable code — imports, fixtures, assertions — is written once, in the per-bead doc, by `write-bead-doc`. Never paste test code into the beads doc.
 
 ## Determining E2E Testability
 
@@ -88,9 +82,11 @@ Save to: `docs/architecture/YYYY-MM-DD-<topic>-beads.md`
 **Structure rules:**
 - The DAG mermaid block renders at the top of the document, before the first bead
 - Each bead is a `## Bead NN — Title` section
-- Subsections labeled: **Accomplishes**, **Depends On**, **Implementation**, **Tests**, **E2E Validation**
-- **Implementation** is a fenced code block with a language tag — full file contents or exact diff
-- **Tests** is a fenced code block — full runnable test code, not descriptions
+- Subsections labeled: **Accomplishes**, **Depends On**, **Input Contract**, **Output Contract**, **File Footprint**, **Implementation Outline**, **Test Intent**, **E2E Validation**
+- **Input/Output Contract** as type definitions or field tables — exact, diffable
+- **File Footprint** as a plain list of paths, delivered and incidental
+- **Implementation Outline** as an ordered list of planning-level steps — no code blocks
+- **Test Intent** as a bulleted list of setup → call → assertion entries
 - E2E steps are a numbered list; N/A stated plainly
 
 ## Common Mistakes
@@ -98,9 +94,10 @@ Save to: `docs/architecture/YYYY-MM-DD-<topic>-beads.md`
 | Mistake | Fix |
 |---|---|
 | Bead too large — spans multiple deployables | Split at each new artifact |
-| Implementation is pseudocode or prose | Write the actual code — full file or exact diff |
-| Tests are descriptions, not runnable code | Write complete test functions with imports, setup, and assertions |
-| Test missing imports or fixtures | Every test must be copy-paste runnable |
+| Full code pasted into the beads doc | Code lives only in the per-bead docs — keep the outline at planning level |
+| Contracts described in loose prose | Exact types/shapes, diffable against neighbouring beads' contracts |
+| Test intent too vague to implement | Pin down setup state, the exact call, and the assertion |
+| File footprint lists only delivered files | Include incidental files: barrels, registries, lockfiles, config |
 | E2E step says "check it works" | Name the exact element, URL, and assertion |
 | Depends On left empty for non-root beads | Trace every prerequisite; omit only for bead 1 |
 | No DAG at the top of the document | Every beads doc requires a parallelism DAG (mermaid) before the first bead |
