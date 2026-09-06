@@ -19,12 +19,9 @@ The plan is not trusted because the model believes it is correct. It is trusted 
 
 ## Step 1 — Collect File Footprints
 
-Footprints are **collected, not re-derived**: each `write-bead-doc` subagent reports its bead's final footprint, and every per-bead doc carries a **File footprint** section. Use those. Only when a report and section are both missing do you derive the footprint from the doc's code sections — and that gap is itself a HOLE to fix in the bead doc.
+Footprints are **collected, not re-derived**: each `write-bead-doc` subagent reports its bead's final footprint, and every per-bead doc carries a **File footprint** section. Use those. Only when a report and section are both missing do you derive the footprint yourself — per the `file-footprint` skill — and that gap is itself a HOLE to fix in the bead doc.
 
-Each footprint covers two categories, both mandatory:
-
-- **Delivered files** — the modules, tests, and schemas the bead exists to produce.
-- **Incidental files** — files the bead touches on the way. This is where hidden conflicts live: barrel/index files, route or plugin registries, `package.json` / lockfiles, migration indexes, config files, generated files, shared type files.
+Footprint format and content are defined by the `file-footprint` skill. Before planning with a footprint, reject any entry that violates its format rules — globs, directory entries, non-normalized or inconsistently spelled paths — because the validator intersects paths **as strings**, and a malformed entry silently defeats the disjointness check rather than failing it.
 
 Cross-check each reported footprint against the footprint declared in the beads doc. Unexplained drift between the two is a finding to resolve in the docs, not something to silently adopt.
 

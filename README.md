@@ -12,6 +12,7 @@ Architecture-to-implementation loop skills for [Claude Code](https://claude.com/
 | `hostile-beads-review` | Adversarially reviews a beads document against the arch doc — dispatches the review dimensions as parallel subagents to find contract mismatches, ordering errors, structural assumptions, and scope creep | Before any per-bead docs are written, and again after they are |
 | `write-bead-doc` | Turns a single bead into a standalone implementation doc with input/output contracts, exact code, and runnable tests | After the beads doc passes hostile review |
 | `parallel-implementation-plan` | Extracts each bead's file footprint and computes a validated wave schedule so dependency-free, file-disjoint beads can be implemented by parallel agents | After the per-bead docs pass final hostile review, before implementation |
+| `file-footprint` | Reference — the canonical definition of a bead's file footprint: exact normalized paths, delivered + incidental files, derivation tactics | Consulted by `beads-document`, `write-bead-doc`, and `parallel-implementation-plan`; not a standalone task |
 | `arch-to-implementation` | Orchestrates the entire loop above, end to end, with human gates at each review stage | When an architecture doc exists and you're ready to build |
 
 ## Installation

@@ -18,7 +18,7 @@ A Beads Document expresses an architectural migration as a sequenced chain of at
 | **Depends on** | Bead numbers/titles that must be complete before this bead starts |
 | **Input contract** | Exact types/shapes this bead consumes, and which prior bead (or existing code) delivers each — precise enough to diff against the predecessor's output contract |
 | **Output contract** | Exact types/shapes this bead delivers — precise enough that every dependent can write its input contract from this alone |
-| **File footprint** | Every file this bead will create or modify — delivered files AND incidental ones (barrel/index files, registries, lockfiles, config, generated files) |
+| **File footprint** | Every file this bead will create, modify, or delete, written per the `file-footprint` skill — delivered AND incidental files, exact normalized paths |
 | **Implementation outline** | Ordered planning-level steps: what changes, where. NOT full code — exact code is written once, later, by `write-bead-doc` |
 | **Test intent** | Each behavior that must be proven: setup state, the exact call/condition, the assertion. Runnable test code is written later by `write-bead-doc` |
 | **E2E validation** | Playwright MCP steps if browser-testable; otherwise "N/A — not browser-testable at this step" |
@@ -84,7 +84,7 @@ Save to: `docs/architecture/YYYY-MM-DD-<topic>-beads.md`
 - Each bead is a `## Bead NN — Title` section
 - Subsections labeled: **Accomplishes**, **Depends On**, **Input Contract**, **Output Contract**, **File Footprint**, **Implementation Outline**, **Test Intent**, **E2E Validation**
 - **Input/Output Contract** as type definitions or field tables — exact, diffable
-- **File Footprint** as a plain list of paths, delivered and incidental
+- **File Footprint** as a plain list of exact paths per the `file-footprint` skill
 - **Implementation Outline** as an ordered list of planning-level steps — no code blocks
 - **Test Intent** as a bulleted list of setup → call → assertion entries
 - E2E steps are a numbered list; N/A stated plainly
@@ -97,7 +97,7 @@ Save to: `docs/architecture/YYYY-MM-DD-<topic>-beads.md`
 | Full code pasted into the beads doc | Code lives only in the per-bead docs — keep the outline at planning level |
 | Contracts described in loose prose | Exact types/shapes, diffable against neighbouring beads' contracts |
 | Test intent too vague to implement | Pin down setup state, the exact call, and the assertion |
-| File footprint lists only delivered files | Include incidental files: barrels, registries, lockfiles, config |
+| File footprint incomplete, or uses globs/directories | Follow the `file-footprint` skill: incidental files included, exact normalized paths only |
 | E2E step says "check it works" | Name the exact element, URL, and assertion |
 | Depends On left empty for non-root beads | Trace every prerequisite; omit only for bead 1 |
 | No DAG at the top of the document | Every beads doc requires a parallelism DAG (mermaid) before the first bead |
