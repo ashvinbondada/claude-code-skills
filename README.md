@@ -7,7 +7,7 @@ Architecture-to-implementation loop skills for [Claude Code](https://claude.com/
 | Skill | What it does | When to use |
 |---|---|---|
 | `architecture-document` | Writes an architecture document | After brainstorming concludes, for new features, greenfield projects, or changes to an existing codebase |
-| `architecture-to-html` | Converts an architecture markdown doc (`docs/architecture/*.md`) to a styled HTML file | When you want to render or publish an architecture doc |
+| `architecture-to-html` | Converts an architecture markdown doc (`docs/architecture/*.md`) to a styled HTML file | Optional, outside the loop — only when you want to render or publish an architecture doc |
 | `beads-document` | Creates a beads document — a migration plan where each bead is an atomic unit of work with dependency ordering, contract tests, and E2E validation steps | Once the architecture doc is reviewed and stable |
 | `hostile-beads-review` | Adversarially reviews a beads document against the arch doc — dispatches the review dimensions as parallel subagents to find contract mismatches, ordering errors, structural assumptions, and scope creep | Before any per-bead docs are written, and again after they are |
 | `write-bead-doc` | Turns a single bead into a standalone implementation doc with input/output contracts, exact code, and runnable tests | After the beads doc passes hostile review |

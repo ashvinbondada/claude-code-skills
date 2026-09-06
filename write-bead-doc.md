@@ -1,6 +1,6 @@
 ---
 name: write-bead-doc
-description: Use when a single bead from a verified beads document needs a standalone implementation document written before coding begins. Takes one bead and produces a complete per-bead HTML doc — input/output contracts, exact code, runnable tests, real risks only. An engineer picks it up and executes with zero follow-up questions.
+description: Use when a single bead from a verified beads document needs a standalone implementation document written before coding begins. Takes one bead and produces a complete per-bead doc — input/output contracts, exact code, runnable tests, real risks only. An engineer picks it up and executes with zero follow-up questions.
 ---
 
 You are writing a per-bead implementation document. This is not architecture prose. It is the exact specification an engineer executes from.
@@ -14,9 +14,9 @@ Ask for these if not provided:
 
 ## Output
 
-A single HTML file saved to `docs/architecture/beads/bead-{N:02d}-{slug}.html`.
+A single markdown file saved to `docs/architecture/beads/bead-{N:02d}-{slug}.md`.
 
-Dark monospace theme: background `#000`, body text `#aaa`, accent `#7c6af7`, headings `#fff`. Self-contained — no external CSS, no CDN except Mermaid if a diagram is genuinely needed.
+Self-contained — everything the engineer needs is in this one file. A fenced ```mermaid block only if a diagram is genuinely needed.
 
 ## Mandatory sections
 

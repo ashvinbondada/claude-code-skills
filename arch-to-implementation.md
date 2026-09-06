@@ -41,7 +41,7 @@ Present findings to human grouped by severity: BLOCKERs → HOLEs → RISKs.
 
 ## Stage 3 — Per-Bead Docs
 
-For each bead in order, invoke `write-bead-doc`. Each doc is saved to `docs/architecture/beads/bead-{N:02d}-{slug}.html`.
+For each bead in order, invoke `write-bead-doc`. Each doc is saved to `docs/architecture/beads/bead-{N:02d}-{slug}.md`.
 
 Run all beads in parallel if they have no dependencies between them. Run sequentially if bead N's doc requires knowing what bead N-1 delivers.
 

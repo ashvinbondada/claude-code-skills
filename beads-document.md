@@ -70,12 +70,10 @@ A bead is browser-testable when a user-visible UI state exists after it complete
 
 **Rule: no more than 5 beads in any parallel wave.** If a natural wave has more than 5, split it into two sequential sub-waves.
 
-Render the DAG as an inline `<svg>` in the HTML output. Layout rules:
-- Waves run left-to-right. Each wave is a vertical column of bead nodes.
-- Nodes: dark rounded rect (`#1a1a1a` fill, `#7c6af7` stroke), white bead number, muted title below.
-- Edges: `#7c6af7` arrows connecting dependency → dependent.
-- Wave labels above each column: `WAVE 1`, `WAVE 2`, etc. in muted caps (`#444`).
-- SVG background `#000`, width 100%, height auto to fit content.
+Render the DAG as a fenced ```mermaid `flowchart LR` block. Layout rules:
+- Waves run left-to-right — group each wave's beads in a `subgraph` labeled `WAVE 1`, `WAVE 2`, etc.
+- Each node shows the bead number and short title, e.g. `B03["03 · parser"]`.
+- Edges connect dependency → dependent.
 
 Example DAG structure for a 10-bead doc with waves [01] → [02,03,04,05,06] → [07,08,09] → [10]:
 ```
@@ -83,23 +81,17 @@ WAVE 1    WAVE 2              WAVE 3        WAVE 4
   01   →  02, 03, 04, 05, 06  →  07, 08, 09  →  10
 ```
 
-## HTML Output Spec
+## Output Spec
 
-Save to: `docs/architecture/YYYY-MM-DD-<topic>-beads.html`
+Save to: `docs/architecture/YYYY-MM-DD-<topic>-beads.md`
 
-**Style rules:**
-- Background: `#000`; text: `#e5e5e5`
-- Font: `'Geist Mono', 'Courier New', monospace`
-- DAG SVG renders at the top of the document, before bead cards
-- Each bead renders as a dark card (`background: #111; border: 1px solid #333`)
-- Bead number displayed prominently (large, accent color `#7c6af7`)
-- Sections labeled: **Accomplishes**, **Depends On**, **Implementation**, **Tests**, **E2E Validation**
-- Vertical thread/timeline connects cards (centered `2px` line, accent color)
-- Dependency numbers/titles rendered in a distinct color (`#f7a04b`)
-- **Implementation** rendered as a `<pre><code>` block with dark background (`#0a0a0a`), full file contents or exact diff
-- **Tests** rendered as a `<pre><code>` block — full runnable test code, not descriptions
-- E2E steps rendered as a numbered `<ol>`; N/A shown in muted color (`#666`)
-- Responsive single-column layout; max-width `800px`; centered
+**Structure rules:**
+- The DAG mermaid block renders at the top of the document, before the first bead
+- Each bead is a `## Bead NN — Title` section
+- Subsections labeled: **Accomplishes**, **Depends On**, **Implementation**, **Tests**, **E2E Validation**
+- **Implementation** is a fenced code block with a language tag — full file contents or exact diff
+- **Tests** is a fenced code block — full runnable test code, not descriptions
+- E2E steps are a numbered list; N/A stated plainly
 
 ## Common Mistakes
 
@@ -111,6 +103,5 @@ Save to: `docs/architecture/YYYY-MM-DD-<topic>-beads.html`
 | Test missing imports or fixtures | Every test must be copy-paste runnable |
 | E2E step says "check it works" | Name the exact element, URL, and assertion |
 | Depends On left empty for non-root beads | Trace every prerequisite; omit only for bead 1 |
-| HTML uses light theme or proportional font | Use `#000` background and monospace only |
-| No DAG at the top of the document | Every beads doc requires a parallelism DAG SVG before the first bead card |
+| No DAG at the top of the document | Every beads doc requires a parallelism DAG (mermaid) before the first bead |
 | More than 5 beads in a parallel wave | Split into sub-waves; cap every wave at 5 |
