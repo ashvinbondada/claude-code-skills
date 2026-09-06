@@ -20,8 +20,9 @@ architecture doc (exists, reviewed)
   → delete beads doc, write one bead doc per bead (write-bead-doc)
   → hostile-beads-review again (against per-bead docs)
   → resolve any new BLOCKERs with human
-  → implement bead by bead in order
-  → verify each bead before moving to next
+  → parallel-implementation-plan (wave schedule + validator)
+  → implement wave by wave (beads within a wave in parallel)
+  → verify each wave before moving to next
 ```
 
 ## Stage 1 — Write Beads Doc
@@ -52,18 +53,25 @@ Re-run `hostile-beads-review` using the per-bead docs as primary input and the a
 
 **Gate:** Resolve any new BLOCKERs with human before implementing.
 
-## Stage 5 — Implement
+## Stage 5 — Parallel Implementation Plan
 
-Implement beads in dependency order. For each bead:
-1. Read the bead doc
-2. Write the code exactly as specified
-3. Run the tests specified in the bead doc — all must pass
-4. Do not move to the next bead until this bead's tests are green
+Invoke `parallel-implementation-plan`. It extracts each bead's file footprint from the per-bead docs, computes a wave schedule (all dependencies in earlier waves, pairwise-disjoint file sets within a wave), emits the plan as JSON, and validates it with a deterministic script.
 
-**No skipping beads.** No implementing bead N+1 while bead N's tests are red.
+**Gate:** The validator must exit 0. If the plan is degenerate (every wave has one bead), review the reported bottleneck file(s) with the human before proceeding — it may be architectural feedback.
+
+## Stage 6 — Implement
+
+Implement wave by wave per the validated plan. For each wave:
+1. Dispatch one subagent per bead in the wave, concurrently. Each reads its bead doc, writes the code exactly as specified, and stays inside its declared file footprint.
+2. Commit beads in bead-number order — each bead is still one discrete commit.
+3. After each bead's commit, check `git diff --name-only` against its declared footprint. Any file outside it is a hard failure: revert or amend, fix the plan, re-validate.
+4. Run the combined test suite for the wave (every bead's tests, plus the project suite) — all must pass before the next wave starts.
+
+**No skipping beads, no skipping waves.** No wave N+1 while wave N is red. If subagent dispatch is unavailable, implement the plan's beads sequentially in wave order — the plan still fixes the order and the footprint checks still apply.
 
 ## Hard Rules
 
+- **The plan validator gates implementation.** No code is written until `parallel-implementation-plan`'s validator exits 0.
 - **Never implement before Stage 4 is clean.** A BLOCKER in the beads review means the code will be wrong.
 - **Never combine beads.** Each bead is a discrete commit. If two beads touch the same file, they are still separate commits.
 - **Human gates BLOCKERs and HOLEs.** The orchestrator resolves RISKs autonomously (add to arch doc trade-offs). Only BLOCKERs and HOLEs go to the human.
