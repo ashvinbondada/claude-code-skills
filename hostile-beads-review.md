@@ -18,6 +18,18 @@ An adversarial review of a beads document cross-referenced against the architect
 
 Read both in full before writing a single finding.
 
+## How to Run This Review — Parallel Dispatch
+
+The seven dimensions below are independent: each needs only the beads doc and the arch doc as input, and none consumes another dimension's findings. **Default to dispatching them as parallel subagents**, all launched in a single message so they run concurrently:
+
+1. One subagent per dimension (or group cheap adjacent ones — e.g. 4+6, 5+7 — into a shared agent; never more than two dimensions per agent).
+2. Each subagent receives: both documents (paths, or full content), the instructions for exactly its dimension(s), the severity labels, the "What NOT to Surface" rules, and the output format. It returns only findings in that format.
+3. The orchestrator merges the results: dedupe overlapping findings (dimensions 1 and 3 routinely catch the same edge problem — keep one finding, note both dimensions), then order BLOCKERs → HOLEs → RISKs, by bead number within each group.
+
+Fall back to running all dimensions inline, sequentially, only when subagent dispatch is unavailable. The re-review pass in "After the Review" (changed beads only) is small enough to run inline.
+
+Parallel dispatch changes who does the work, not the bar: every dimension still runs, every red flag below still applies to the merged result.
+
 ## Review Dimensions
 
 Run every dimension. Do not skip one because it seems fine.

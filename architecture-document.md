@@ -23,8 +23,7 @@ Create a task for each phase and complete them in order:
 8. **Define migration path** — ordered steps with: what changes, what stays, rollback plan per step, and specific validation criteria that must pass before moving to the next step.
 9. **Define performance targets** — specific numbers with units. No ranges. No "good enough." Each target must have a rationale tying it to a user-visible or system-critical outcome.
 10. **Generate Mermaid diagram** — must show the happy path AND failure paths (retries, dead letters, fallbacks). code block + mermaid.live URL
-11. **Design interactive demo** — plan the simulation before writing it: what flows to show, what state to animate, what fake data to use, how to trigger failure/retry paths
-12. **Write the document** — use the `architecture-to-html` skill to write directly to `docs/architecture/YYYY-MM-DD-<topic>-architecture.html` (no markdown intermediary). The interactive demo is the last section, fully implemented in inline JS/CSS.
+11. **Write the document** — write markdown to `docs/architecture/YYYY-MM-DD-<topic>-architecture.md`.
 
 <HARD-GATE>
 Do NOT proceed past step 4 until the user has explicitly approved the commandments. Present them, revise until approved, then continue.
@@ -57,7 +56,7 @@ digraph architecture_document {
     "Design ideal end state" -> "Identify chosen changes";
     "Identify chosen changes" -> "Define performance targets";
     "Define performance targets" -> "Generate Mermaid diagram";
-    "Generate Mermaid diagram" -> "Write HTML document (architecture-to-html)";
+    "Generate Mermaid diagram" -> "Write document";
 }
 ```
 
@@ -93,9 +92,9 @@ Then construct: `https://mermaid.live/edit#base64:<encoded>`
 
 ## Document Output
 
-**Do NOT write a markdown file.** Use the `architecture-to-html` skill to write the final document directly as HTML to `docs/architecture/YYYY-MM-DD-<topic>-architecture.html`.
+Write the final document as markdown to `docs/architecture/YYYY-MM-DD-<topic>-architecture.md`.
 
-The HTML document must contain these sections in order, each written with enough detail that an engineer could begin implementation without follow-up questions:
+The document must contain these sections in order, each written with enough detail that an engineer could begin implementation without follow-up questions:
 
 - **Overview & Context** — full description of the system/feature: what it does, why it's being built or changed, who uses it, what triggers this work, and what success looks like. Not a summary — a complete picture.
 - **Current Architecture Diagnosis** — for each pain point: what it is, where it lives in the codebase, what breaks because of it, and how frequently. Include specific file names, method names, or data flows where known. (Greenfield: N/A)
@@ -103,24 +102,20 @@ The HTML document must contain these sections in order, each written with enough
 - **The Commandments** — numbered list, each with name and 2–3 sentence rationale (see Commandments Guidelines)
 - **Design Choices & Trade-offs** — only include decisions where something real is being sacrificed. If a choice has no meaningful downside, it is not a design choice — leave it out. For each genuine trade-off: what was chosen, what viable alternative was given up, what you permanently lose by not choosing the alternative, and what future condition would force you to reverse this decision. The "what you lose" must be concrete and painful — not "slightly less convenient" but "we cannot do X without a rewrite" or "this will hurt us at Y scale." If you cannot name the loss, the decision does not belong here.
 - **Migration Path** — ordered steps with enough detail to estimate effort: what changes, what stays, what the rollback plan is, and what the validation criteria are at each step.
-- **Architecture Diagram** — `<div class="mermaid">` block + Mermaid Live link
+- **Architecture Diagram** — fenced ```mermaid code block + Mermaid Live link
 - **Expected Performance** — table of Metric / Target / Rationale rows. Targets must be specific numbers, not ranges or "good enough."
 
 - **Bidirectional beads link requirement** — the architecture doc and its beads doc MUST link to each other:
 
-  - The **architecture HTML** includes a forward link near the top (right after the subtitle) pointing to its beads file:
-    ```html
-    <div class="forwardlink">→ <a href="<beads-filename>.html">Implementation beads</a></div>
+  - The **architecture doc** includes a forward link near the top (right after the title) pointing to its beads file:
+    ```markdown
+    → [Implementation beads](<beads-filename>.md)
     ```
-  - The **beads HTML** includes a backlink in the same position pointing to the architecture file:
-    ```html
-    <div class="backlink">← <a href="<arch-filename>.html">Back to architecture spec</a></div>
+  - The **beads doc** includes a backlink in the same position pointing to the architecture file:
+    ```markdown
+    ← [Back to architecture spec](<arch-filename>.md)
     ```
-
-  Style both to match the dark monospace theme: purple accent `#7c6af7` on the link, dotted underline, solid underline on hover.
 
 **Depth standard:** After reading this document, an engineer should have zero unanswered questions about what is being built and why. If a decision is deferred, say so explicitly and state what information would resolve it. If you find yourself writing a vague sentence, stop — either make it specific or surface it as an open question for the user.
 
-- **Interactive Demo** — the final section of every architecture document is a self-contained interactive demo of the system, built entirely in HTML/CSS/JS and embedded directly in the page. No external dependencies, no server required — it must run from a local `file://` URL. The demo should simulate the core user-facing or operator-facing flow of the system described: if it's a queue, show messages moving through it; if it's an API, show requests and responses; if it's a UI feature, show the UI. Use animation, state transitions, and realistic fake data to make it feel alive. The goal is that someone who has never read the document can watch the demo for 30 seconds and understand what the system does and why it matters. This is not a diagram — it is a working simulation. If the system has multiple flows (happy path, failure, retry), demo all of them with a way to trigger each. Label every element so the demo is self-explanatory without narration.
-
-Invoke the `architecture-to-html` skill for CSS, Mermaid CDN handling, and the HTML shell template.
+Rendering or publishing the doc as styled HTML is a separate, optional step outside this loop — invoke `architecture-to-html` only when the user asks for it.

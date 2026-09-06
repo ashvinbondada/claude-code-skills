@@ -7,10 +7,12 @@ Architecture-to-implementation loop skills for [Claude Code](https://claude.com/
 | Skill | What it does | When to use |
 |---|---|---|
 | `architecture-document` | Writes an architecture document | After brainstorming concludes, for new features, greenfield projects, or changes to an existing codebase |
-| `architecture-to-html` | Converts an architecture markdown doc (`docs/architecture/*.md`) to a styled HTML file | When you want to render or publish an architecture doc |
-| `beads-document` | Creates a beads document — a migration plan where each bead is an atomic unit of work with dependency ordering, contract tests, and E2E validation steps | Once the architecture doc is reviewed and stable |
-| `hostile-beads-review` | Adversarially reviews a beads document against the arch doc — finds contract mismatches, ordering errors, structural assumptions, and scope creep | Before any per-bead docs are written, and again after they are |
+| `architecture-to-html` | Converts an architecture markdown doc (`docs/architecture/*.md`) to a styled HTML file | Optional, outside the loop — only when you want to render or publish an architecture doc |
+| `beads-document` | Creates a beads document — a migration plan where each bead is an atomic unit of work with dependency ordering, input/output contracts, a file footprint, and E2E validation steps | Once the architecture doc is reviewed and stable |
+| `hostile-beads-review` | Adversarially reviews a beads document against the arch doc — dispatches the review dimensions as parallel subagents to find contract mismatches, ordering errors, structural assumptions, and scope creep | Before any per-bead docs are written, and again after they are |
 | `write-bead-doc` | Turns a single bead into a standalone implementation doc with input/output contracts, exact code, and runnable tests | After the beads doc passes hostile review |
+| `parallel-implementation-plan` | Extracts each bead's file footprint and computes a validated wave schedule so dependency-free, file-disjoint beads can be implemented by parallel agents | After the per-bead docs pass final hostile review, before implementation |
+| `file-footprint` | Reference — the canonical definition of a bead's file footprint: exact normalized paths, delivered + incidental files, derivation tactics | Consulted by `beads-document`, `write-bead-doc`, and `parallel-implementation-plan`; not a standalone task |
 | `arch-to-implementation` | Orchestrates the entire loop above, end to end, with human gates at each review stage | When an architecture doc exists and you're ready to build |
 
 ## Installation
@@ -48,9 +50,10 @@ The orchestrator runs every stage in order and stops at each gate:
 
 1. Writes the beads doc (`beads-document`)
 2. Hostile-reviews it against the arch doc (`hostile-beads-review`) — you resolve BLOCKERs and HOLEs before it proceeds
-3. Writes one implementation doc per bead (`write-bead-doc`)
+3. Writes all per-bead implementation docs as parallel agents (`write-bead-doc`) — this is where exact code and runnable tests first appear; the beads doc is kept as the contract index
 4. Re-reviews the per-bead docs for contradictions
-5. Implements bead by bead in dependency order — each bead's tests must be green before the next bead starts
+5. Computes a wave schedule (`parallel-implementation-plan`) — a deterministic validator must pass before any code is written
+6. Implements wave by wave — beads within a wave run as parallel agents on disjoint file sets; each wave's combined tests must be green before the next wave starts
 
 ### Individual skills
 
@@ -69,6 +72,9 @@ Run hostile-beads-review on the beads doc against the arch doc
 Use write-bead-doc for bead 3 in the beads document
 ```
 ```
+Run parallel-implementation-plan on the per-bead docs
+```
+```
 Use architecture-to-html to render docs/architecture/notifications.md
 ```
 
@@ -77,6 +83,9 @@ Because each skill's frontmatter describes when it applies, Claude Code will als
 ## Hard rules baked into the loop
 
 - Nothing is implemented until the beads review is clean — a BLOCKER means the code would be wrong.
-- Beads are never combined; each bead is a discrete commit.
+- Code is written once: the beads doc holds contracts, footprints, and outlines; per-bead docs hold the exact code. The beads doc is kept after approval, never deleted.
+- Nothing is implemented until the parallel plan's validator exits 0 — the model's confidence in a schedule is not a gate; the script is.
+- Beads are never combined; each bead is a discrete commit — even when implemented in parallel waves.
+- Beads in the same wave never share a file; footprint drift during implementation is a hard failure, not a warning.
 - BLOCKERs and HOLEs are resolved with a human; only RISKs are resolved autonomously.
 - The architecture doc is the source of truth when documents conflict.

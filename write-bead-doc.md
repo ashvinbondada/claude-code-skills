@@ -1,6 +1,6 @@
 ---
 name: write-bead-doc
-description: Use when a single bead from a verified beads document needs a standalone implementation document written before coding begins. Takes one bead and produces a complete per-bead HTML doc — input/output contracts, exact code, runnable tests, real risks only. An engineer picks it up and executes with zero follow-up questions.
+description: Use when a single bead from a verified beads document needs a standalone implementation document written before coding begins. Takes one bead and produces a complete per-bead doc — input/output contracts, exact code, runnable tests, real risks only. An engineer picks it up and executes with zero follow-up questions.
 ---
 
 You are writing a per-bead implementation document. This is not architecture prose. It is the exact specification an engineer executes from.
@@ -14,9 +14,9 @@ Ask for these if not provided:
 
 ## Output
 
-A single HTML file saved to `docs/architecture/beads/bead-{N:02d}-{slug}.html`.
+A single markdown file saved to `docs/architecture/beads/bead-{N:02d}-{slug}.md`.
 
-Dark monospace theme: background `#000`, body text `#aaa`, accent `#7c6af7`, headings `#fff`. Self-contained — no external CSS, no CDN except Mermaid if a diagram is genuinely needed.
+Self-contained — everything the engineer needs is in this one file. A fenced ```mermaid block only if a diagram is genuinely needed.
 
 ## Mandatory sections
 
@@ -60,6 +60,11 @@ Format each risk:
 
 If there are no risks meeting this bar, write: "No risks above threshold for this bead."
 
+### 7. File footprint
+Every file this bead creates, modifies, or deletes, written as the fenced JSON block defined by the `file-footprint` skill (`{"bead": N, "delivered": [...], "incidental": [...]}` — exact normalized paths). Start from the footprint declared in the beads doc, then confirm or correct it against the exact code in section 4. If they differ, explain in prose next to the block which files were added or dropped and why.
+
+When running as a subagent, return this footprint to the orchestrator alongside the doc — `parallel-implementation-plan` consumes these reports.
+
 ## What NOT to include
 - Rationale already in the architecture doc — add a `See: [arch doc path]` reference instead
 - Low-severity observations
@@ -73,5 +78,6 @@ Before writing the file, verify all three are true:
 1. An engineer can write every line of code without asking a follow-up question
 2. The exact tests to run to verify completion are present and runnable
 3. The next bead's author can write their input contract from section 3 alone
+4. The file footprint in section 7 matches exactly the files section 4 touches — nothing more, nothing less
 
 If any are false, fill the gap before saving.
