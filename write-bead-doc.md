@@ -61,7 +61,7 @@ Format each risk:
 If there are no risks meeting this bar, write: "No risks above threshold for this bead."
 
 ### 7. File footprint
-Every file this bead creates, modifies, or deletes, written per the `file-footprint` skill — exact normalized paths, delivered and incidental files both. Start from the footprint declared in the beads doc, then confirm or correct it against the exact code in section 4. If they differ, list which files were added or dropped and why.
+Every file this bead creates, modifies, or deletes, written as the fenced JSON block defined by the `file-footprint` skill (`{"bead": N, "delivered": [...], "incidental": [...]}` — exact normalized paths). Start from the footprint declared in the beads doc, then confirm or correct it against the exact code in section 4. If they differ, explain in prose next to the block which files were added or dropped and why.
 
 When running as a subagent, return this footprint to the orchestrator alongside the doc — `parallel-implementation-plan` consumes these reports.
 

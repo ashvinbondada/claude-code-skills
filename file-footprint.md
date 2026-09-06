@@ -26,6 +26,22 @@ Created, modified, and deleted files all count. People remember source files and
 - Generated files: codegen output, migration indexes, API client stubs, compiled schemas — if the bead's steps regenerate it, it's in the footprint
 - Config files the bead edits (CI config, env schema, build config)
 
+## Canonical JSON Form
+
+The **confirmed** footprint — the one in the per-bead doc's File footprint section, which `parallel-implementation-plan` consumes — is written as a fenced ```json block:
+
+```json
+{
+  "bead": 4,
+  "delivered": ["src/parser.ts", "test/parser.test.ts"],
+  "incidental": ["src/index.ts", "package.json", "package-lock.json"]
+}
+```
+
+The plan's `files` array for the bead is `delivered` + `incidental`, concatenated verbatim. Because the block is machine-readable, downstream checks parse it instead of transcribing it: the plan validator's inputs come straight from these blocks, and the implementation-time `git diff --name-only` comparison can be scripted against them. Any drift explanation goes in prose next to the block, not inside it.
+
+The **declared** footprint in the beads doc may stay a plain list — it is planning-level and superseded by the confirmed block — but may use the same JSON form if convenient.
+
 ## Delivered vs Incidental
 
 Both categories are mandatory; label them if the consuming doc's format has room, but every path must appear either way:
